@@ -2,7 +2,7 @@
 
 Local text-to-speech using [KittenTTS](https://github.com/KittenML/KittenTTS) — a lightweight, CPU-optimized ONNX-based TTS library. No GPU required.
 
-Includes a Claude Code integration that speaks every assistant response aloud via a persistent background daemon.
+Includes a Claude Code integration that speaks every assistant response aloud via a persistent background daemon. The integration is a **Stop hook** (fires automatically after every response) plus two **slash commands** (`/stop-tts`, `/tts-set`) you invoke manually.
 
 ## Prerequisites
 
@@ -59,7 +59,7 @@ This downloads the model if needed and generates a set of `.wav` files:
 
 ## Claude Code integration
 
-The integration speaks every Claude response aloud. It consists of three parts:
+The integration has three parts: a background daemon, a Stop hook, and two slash commands.
 
 ### 1. Daemon (`tts_daemon.py`)
 
@@ -89,12 +89,12 @@ Logs are written to `/tmp/tts-daemon.log`.
 
 ### 2. Hook (`speak.py`)
 
-Called automatically by Claude Code's `Stop` hook after every response. It processes the text through several stages before sending to the daemon:
+A Claude Code Stop hook — called automatically after every response. It processes text through several stages before sending to the daemon:
 
 1. **Markdown stripping** — fenced code blocks become "code block.", inline code backticks are stripped (content kept), headers/bold/links are unwrapped, list items become period-terminated sentences.
-2. **TTS normalization** — arrows (`→`, `=>`) become spoken words, URLs become "link", `snake_case` and `camelCase` are spaced out, common abbreviations (`e.g.`, `i.e.`, `etc.`) are expanded, known acronyms (`API`, `CLI`, `TTS`, etc.) have their letters spaced for correct pronunciation, numbers with commas are cleaned.
+2. **TTS normalization** — arrows become spoken words, URLs become "link", `snake_case` and `camelCase` are spaced out, common abbreviations (`e.g.`, `i.e.`, `etc.`) are expanded, known acronyms (`API`, `CLI`, `TTS`, etc.) have their letters spaced for correct pronunciation, filenames like `config.json` are read as "config dot json".
 3. **Sentence splitting** — splits on sentence-ending punctuation and em-dashes.
-4. **Character cap** — only the first ~600 characters worth of sentences are sent, so long responses start playing quickly.
+4. **Character cap** — only the first N characters worth of sentences are sent (configurable in `config.json`, default 600), so long responses start playing quickly.
 
 When a turn ends with a tool call rather than a text response, `last_assistant_message` is empty. In that case the hook falls back to reading the transcript JSONL at `transcript_path` and extracting the last assistant text block directly.
 
@@ -119,17 +119,17 @@ The hook is configured in `~/.claude/settings.json`:
 }
 ```
 
-Update the paths to match your install location, then run `/hooks` in Claude Code to reload.
+Update the paths to match your install location, then restart Claude Code to reload.
 
-### 3. Stop command (`stop_tts.py`)
+### 3. Slash commands
 
-Interrupts playback immediately and clears the queue:
+**`/stop-tts`** — interrupts playback immediately and clears the queue. Can also be run directly:
 
 ```bash
 .venv/bin/python stop_tts.py
 ```
 
-In Claude Code, type `/stop-tts` — install the slash command by creating `~/.claude/commands/stop-tts.md` with this content (update the path to match your install location):
+Install by creating `~/.claude/commands/stop-tts.md` (update paths):
 
 ```markdown
 Stop TTS playback immediately, clearing any queued audio.
@@ -137,14 +137,53 @@ Stop TTS playback immediately, clearing any queued audio.
 !  /path/to/.venv/bin/python /path/to/stop_tts.py
 ```
 
-Restart Claude Code after creating the file for the command to appear in autocomplete.
+**`/tts-set`** — updates voice, speed, model, or character limit without restarting the daemon. Changes take effect on the next spoken sentence.
+
+```
+/tts-set --voice Luna --speed 1.1
+/tts-set --char-limit 800
+/tts-set --model KittenML/kitten-tts-micro-0.8
+```
+
+Can also be run directly:
+
+```bash
+.venv/bin/python set_tts.py --voice Rosie --speed 0.9
+```
+
+Install by creating `~/.claude/commands/tts-set.md` (update paths):
+
+```markdown
+Update TTS parameters. Changes take effect on the next spoken sentence — no daemon restart needed.
+
+Usage: /tts-set --voice Luna --speed 1.1 --char-limit 800
+
+Available voices: Bella, Jasper, Luna, Bruno, Rosie, Hugo, Kiki, Leo
+
+! /path/to/.venv/bin/python /path/to/set_tts.py $ARGUMENTS
+```
+
+Restart Claude Code after creating either file for the commands to appear in autocomplete.
+
+## Configuration (`config.json`)
+
+Voice, speed, model, and character limit are stored in `config.json` at the repo root. The daemon and hook read this file on every synthesis — no restart needed when you change it.
+
+```json
+{
+  "model": "KittenML/kitten-tts-mini-0.8",
+  "voice": "Hugo",
+  "speed": 1.3,
+  "char_limit": 600
+}
+```
 
 ## Experimenting with parameters
 
-Use `sample.py` to quickly try different voices, speeds, and models without touching the daemon:
+Use `sample.py` to quickly try different voices, speeds, and models without going through the daemon:
 
 ```bash
-# defaults: Luna voice, 1.0x speed, mini model
+# defaults: Hugo voice, 1.3x speed, mini model
 .venv/bin/python sample.py
 
 # different voice and speed
@@ -157,7 +196,7 @@ Use `sample.py` to quickly try different voices, speeds, and models without touc
 .venv/bin/python sample.py --model KittenML/kitten-tts-nano-0.8-int8 --voice Bruno
 ```
 
-Once you find settings you like, update `tts_daemon.py` — the `model.generate()` call in `generator_thread` is where voice and speed are set.
+Once you find settings you like, save them with `/tts-set` or edit `config.json` directly.
 
 ## Basic API usage
 
@@ -187,7 +226,7 @@ model.generate_to_file("Hello, world.", "output.wav", voice="Jasper", speed=1.0)
 | nano fp32 | 15M | ~56 MB | `KittenML/kitten-tts-nano-0.8-fp32` |
 | nano int8 | 15M | ~25 MB | `KittenML/kitten-tts-nano-0.8-int8` |
 
-To switch models, update the repo ID in `tts_daemon.py` and run `test_tts.py` once to download the new weights.
+To switch models, update `config.json` and run `test_tts.py` once to download the new weights if needed.
 
 ## Notes
 

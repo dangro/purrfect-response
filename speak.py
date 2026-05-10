@@ -12,6 +12,15 @@ import time
 SOCKET_PATH = "/tmp/claude-tts.sock"
 DAEMON = os.path.join(os.path.dirname(__file__), "tts_daemon.py")
 PYTHON = os.path.join(os.path.dirname(__file__), ".venv", "bin", "python")
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config.json")
+
+
+def read_config():
+    try:
+        with open(CONFIG_PATH) as f:
+            return json.load(f)
+    except Exception:
+        return {"char_limit": 600}
 
 
 def strip_markdown(text):
@@ -87,6 +96,13 @@ def normalize_for_tts(text):
 
     # Numbers with commas → no commas
     text = re.sub(r"(\d),(\d{3})", r"\1\2", text)
+
+    # Filenames: word.ext → "word dot ext"
+    text = re.sub(
+        r"\b(\w+)\.(py|json|md|txt|wav|toml|sh|js|ts|yaml|yml|log|env|cfg|ini|html|css)\b",
+        r"\1 dot \2",
+        text,
+    )
 
     return text
 
@@ -220,10 +236,10 @@ def main():
 
     text = normalize_for_tts(text)
     sentences = split_sentences(text)
-    # Cap total spoken content at ~600 chars across all sentences
+    char_limit = read_config().get("char_limit", 600)
     kept, total = [], 0
     for s in sentences:
-        if total + len(s) > 600:
+        if total + len(s) > char_limit:
             break
         kept.append(s)
         total += len(s)

@@ -11,6 +11,15 @@ import threading
 
 SOCKET_PATH = "/tmp/claude-tts.sock"
 PID_FILE = "/tmp/claude-tts.pid"
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config.json")
+
+
+def read_config():
+    try:
+        with open(CONFIG_PATH) as f:
+            return json.load(f)
+    except Exception:
+        return {"voice": "Hugo", "speed": 1.3}
 
 
 def get_windows_temp():
@@ -84,7 +93,8 @@ class Daemon:
                 self.gen_q.task_done()
                 continue
             try:
-                audio = self.model.generate(text, voice="Hugo", speed=1.3)
+                cfg = read_config()
+                audio = self.model.generate(text, voice=cfg.get("voice", "Hugo"), speed=cfg.get("speed", 1.3))
             except Exception as e:
                 print(f"Generate error: {e}", file=sys.stderr, flush=True)
                 self.gen_q.task_done()
