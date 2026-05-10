@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/dagroppe/Source/claude-tts/.venv/bin/python /home/dagroppe/Source/claude-tts/speak.py >> /tmp/tts-speak.log 2>&1"
+          }
+        ]
+      }
+    ]
+  }
+}
