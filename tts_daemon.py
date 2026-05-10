@@ -9,8 +9,8 @@ import sys
 import tempfile
 import threading
 
-SOCKET_PATH = "/tmp/claude-tts.sock"
-PID_FILE = "/tmp/claude-tts.pid"
+SOCKET_PATH = "/tmp/purrfect-response.sock"
+PID_FILE = "/tmp/purrfect-response.pid"
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config.json")
 
 

@@ -3,7 +3,7 @@
 import socket
 import sys
 
-SOCKET_PATH = "/tmp/claude-tts.sock"
+SOCKET_PATH = "/tmp/purrfect-response.sock"
 
 try:
     s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)

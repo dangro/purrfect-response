@@ -9,7 +9,7 @@ import subprocess
 import sys
 import time
 
-SOCKET_PATH = "/tmp/claude-tts.sock"
+SOCKET_PATH = "/tmp/purrfect-response.sock"
 DAEMON = os.path.join(os.path.dirname(__file__), "tts_daemon.py")
 PYTHON = os.path.join(os.path.dirname(__file__), ".venv", "bin", "python")
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config.json")

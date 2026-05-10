@@ -12,5 +12,6 @@ wheels/
 # Generated audio samples
 *.wav
 
-# Project-local Claude Code settings (machine-specific permissions)
+# Project-local Claude Code settings (machine-specific)
+.claude/settings.json
 .claude/settings.local.json
