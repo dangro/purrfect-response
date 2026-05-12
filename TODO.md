@@ -2,9 +2,7 @@
 
 ## Pending
 
-- [ ] **TTS configuration** — add parameters to configure model (mini/micro/nano), voice, and speed. Should be adjustable without restarting the daemon (e.g. via a config file or socket command).
-
-- [ ] **Disable TTS per-response or for N turns** — add a way to tell Claude to skip TTS for a specific response or suppress it for a given number of turns (e.g. "mute for 3 turns").
+- [ ] **TTS on/off toggle** — a slash command to enable or disable TTS globally, persisted across turns.
 
 ## Done
 
@@ -15,3 +13,5 @@
 - [x] Stop/interrupt command via socket (`stop_tts.py`)
 - [x] Claude Code Stop hook wired to global settings
 - [x] `/stop-tts` slash command to interrupt TTS (keybindings can't run arbitrary scripts)
+- [x] TTS configuration via `config.json` and `/tts-set` slash command (voice, speed, model, char limit)
+- [x] `#notts` to skip TTS for a specific response

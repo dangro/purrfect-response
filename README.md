@@ -16,23 +16,7 @@ Two **slash commands** let you interrupt playback or adjust parameters on the fl
 
 - Python 3.12+
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) (package manager)
-- `espeak-ng` system library (required by phonemizer)
 - Claude Code
-
-### Install espeak-ng
-
-**Ubuntu/Debian / WSL2:**
-```bash
-sudo apt install espeak-ng
-```
-
-**macOS:**
-```bash
-brew install espeak-ng
-```
-
-**Windows (native):**
-Download and install from [espeak-ng releases](https://github.com/espeak-ng/espeak-ng/releases).
 
 Audio playback on WSL2 uses Windows audio via PowerShell. No extra setup is needed as long as you are on Windows 11.
 
@@ -63,7 +47,7 @@ uv sync
 **2. Download the model:**
 
 ```bash
-uv run python test_tts.py
+.venv/bin/python test_tts.py
 ```
 
 This triggers the first download and generates sample `.wav` files to confirm synthesis is working.
@@ -194,18 +178,6 @@ Use `sample.py` to audition voices and speeds without going through the daemon:
 | nano int8 | 15M | ~25 MB | `KittenML/kitten-tts-nano-0.8-int8` |
 
 To switch models, update `config.json` and run `test_tts.py` once to download the weights if not already cached.
-
-## Basic API usage
-
-```python
-from kittentts import KittenTTS
-import soundfile as sf
-
-model = KittenTTS("KittenML/kitten-tts-mini-0.8")
-
-audio = model.generate("Hello, world.", voice="Luna", speed=1.0)
-sf.write("output.wav", audio, 24000)
-```
 
 ## Notes
 
