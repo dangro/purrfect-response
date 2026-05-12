@@ -1,7 +1,9 @@
+import json, os
 from kittentts import KittenTTS
 import soundfile as sf
 
-model = KittenTTS("KittenML/kitten-tts-mini-0.8")
+_config = json.load(open(os.path.join(os.path.dirname(__file__), "config.json")))
+model = KittenTTS(_config.get("model", "KittenML/kitten-tts-nano-0.8-int8"))
 
 print(f"Available voices: {model.available_voices}")
 

@@ -27,7 +27,7 @@ def get_windows_temp():
     return subprocess.check_output(["wslpath", win]).decode().strip()
 
 
-def load_model_from_cache(repo_id="KittenML/kitten-tts-mini-0.8"):
+def load_model_from_cache(repo_id=None):
     """Load model directly from HuggingFace local cache — no network calls."""
     from huggingface_hub import try_to_load_from_cache
     from kittentts.onnx_model import KittenTTS_1_Onnx
@@ -147,7 +147,10 @@ class Daemon:
 
 def main():
     print("Loading TTS model...", file=sys.stderr, flush=True)
-    model = load_model_from_cache()
+    cfg = read_config()
+    repo_id = cfg.get("model", "KittenML/kitten-tts-nano-0.8-int8")
+    print(f"Loading model: {repo_id}", file=sys.stderr, flush=True)
+    model = load_model_from_cache(repo_id)
     wsl_temp = get_windows_temp()
     print("Model ready. Listening on socket.", file=sys.stderr, flush=True)
 
