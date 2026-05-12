@@ -2,7 +2,6 @@
 
 ## Pending
 
-- [ ] **TTS on/off toggle** — a slash command to enable or disable TTS globally, persisted across turns.
 
 ## Done
 
@@ -15,3 +14,4 @@
 - [x] `/stop-tts` slash command to interrupt TTS (keybindings can't run arbitrary scripts)
 - [x] TTS configuration via `config.json` and `/tts-set` slash command (voice, speed, model, char limit)
 - [x] `#notts` to skip TTS for a specific response
+- [x] `/tts-toggle` slash command to enable or disable TTS globally

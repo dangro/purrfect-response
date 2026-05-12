@@ -2,5 +2,6 @@
   "model": "KittenML/kitten-tts-mini-0.8",
   "voice": "Hugo",
   "speed": 1.3,
-  "char_limit": 600
+  "char_limit": 600,
+  "enabled": true
 }

@@ -10,7 +10,7 @@ A Claude Code integration that reads every assistant response aloud using [Kitte
 
 A persistent background daemon keeps the ONNX model loaded in memory. A Claude Code **Stop hook** fires after every response, strips and normalizes the text, and streams sentences to the daemon one at a time. The daemon plays each sentence as soon as it is synthesized while generating the next, so audio starts within a second or two of Claude finishing.
 
-Two **slash commands** let you interrupt playback or adjust parameters on the fly.
+Three **slash commands** let you interrupt playback, adjust parameters, or toggle TTS on and off.
 
 ## Prerequisites
 
@@ -99,6 +99,13 @@ Available voices: Bella, Jasper, Luna, Bruno, Rosie, Hugo, Kiki, Leo
 ! /path/to/.venv/bin/python /path/to/set_tts.py $ARGUMENTS
 ```
 
+`~/.claude/commands/tts-toggle.md`:
+```markdown
+Toggle TTS on or off. Persists across turns.
+
+! /path/to/.venv/bin/python /path/to/toggle_tts.py
+```
+
 Restart Claude Code for the slash commands to appear in autocomplete.
 
 ## Managing the daemon
@@ -128,7 +135,7 @@ The Stop hook processes text through several stages:
 
 When a turn ends with a tool call rather than a text response, `last_assistant_message` is empty. The hook falls back to reading the transcript JSONL directly.
 
-To skip TTS for a specific response, include `#notts` anywhere in your message.
+To skip TTS for a specific response, include `#notts` anywhere in your message. To disable TTS entirely, use `/tts-toggle` (persisted in `config.json`).
 
 ## Configuration (`config.json`)
 

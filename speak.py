@@ -221,6 +221,10 @@ def main():
     if not raw_msg and data.get("transcript_path"):
         raw_msg = last_text_from_transcript(data["transcript_path"])
 
+    if not read_config().get("enabled", True):
+        log("speak.py: TTS disabled, skipping")
+        return
+
     if data.get("transcript_path"):
         user_text = last_user_text_from_transcript(data["transcript_path"])
         if "#notts" in user_text:
